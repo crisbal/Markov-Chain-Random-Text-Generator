@@ -55,7 +55,7 @@ def generateText(dictionary):
 
             if DEBUG and len(possibleWords)>1:   #with DEBUG enabled you will see a colored word when the word was chosen from a more-than-1 choice list, aka the sentence could have gone 2 or more ways.
                 sentence.append("\033[94m" + chosenWord + "\033[0m")
-                print("Chosen: " + chosenWord + " from " + str(possibleWords))
+                print("\'" + chosenWord + "\' from " + str(possibleWords))
             else:
                 sentence.append(chosenWord)
 
