@@ -5,6 +5,8 @@ from random import choice
 END_PUNCTATION = ["!","?","."]
 MAX_SENTENCES = 10
 
+DEBUG = True
+
 def generateDict(text):
     words = text.split()
     if len(words) > 2:
@@ -28,11 +30,15 @@ def generateDict(text):
     else:
         return None
 
-def generateText(dictionary):
-
+def getStartingKey(dictionary):
     #only upper cased first-in-tuple words are valid for a startingKey 
     possibleStartingKeys = [key for key in list(dictionary.keys()) if key[0][0].isupper()] 
     startingKey = choice(possibleStartingKeys)
+    return startingKey
+
+def generateText(dictionary):
+
+    startingKey = getStartingKey(dictionary)
 
     sentence = []
     sentence.append(startingKey[0])
@@ -44,18 +50,26 @@ def generateText(dictionary):
         try:
             possibleWords = dictionary[key]
             chosenWord = choice(possibleWords)
-            
-        except KeyError:    #the path is closed!
-           break
 
-        key = (key[1],chosenWord)
-        sentence.append(chosenWord)
+            key = (key[1],chosenWord)
 
-        if chosenWord[-1] in END_PUNCTATION:    #if the last char of the word is a end sentence thing
+            if DEBUG and len(possibleWords)>1:   #with DEBUG enabled you will see a colored word when the word was chosen from a more-than-1 choice list, aka the sentence could have gone 2 or more ways.
+                sentence.append("\033[94m" + chosenWord + "\033[0m")
+                print("Chosen: " + chosenWord + " from " + str(possibleWords))
+            else:
+                sentence.append(chosenWord)
+
+            if chosenWord[-1] in END_PUNCTATION:    #if the last char of the word is a end sentence thing
+                sentence.append("\n")
+                sentences = sentences + 1
+                if sentences > MAX_SENTENCES:
+                    break 
+
+        except KeyError:    #the path is closed, better start another sentence!
+            key = getStartingKey(dictionary)
             sentence.append("\n")
-            sentences = sentences + 1
-            if sentences > MAX_SENTENCES:
-                break 
+            sentence.append(key[0])
+            sentence.append(key[1])
 
     return " ".join(sentence)
 
@@ -72,7 +86,7 @@ if __name__ == "__main__":
                 dictionary = generateDict(text)
                 if dictionary:
                     text = generateText(dictionary)
-                    print(text)
+                    print("\n\n" + text)
                 else:
                     print("Can't generate dictionary from the input text.\nERROR in generateDict.")
         else:
